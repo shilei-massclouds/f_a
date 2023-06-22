@@ -6,6 +6,8 @@
 // [r]: reference
 //
 
+use core::alloc::Layout;
+
 #[no_mangle]
 pub fn sys_call_nn() {
     println!("fn sys_call_nn();\n");
@@ -20,5 +22,17 @@ pub fn sys_call_bn(val: usize) {
 #[no_mangle]
 pub fn sys_call_rbn(val: &usize) {
     let ptr = &(*val) as *const _;
+    println!("[callee]: {:?}\n", ptr);
+}
+
+#[no_mangle]
+pub fn sys_call_sn(layout: Layout) {
+    let ptr = &layout as *const _;
+    println!("[callee]: {:?}\n", ptr);
+}
+
+#[no_mangle]
+pub fn sys_call_rsn(layout: &Layout) {
+    let ptr = &(*layout) as *const _;
     println!("[callee]: {:?}\n", ptr);
 }
