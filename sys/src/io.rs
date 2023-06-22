@@ -6,6 +6,11 @@ struct Stdout;
 
 impl Write for Stdout {
     fn write_str(&mut self, buf: &str) -> Result<(), Error> {
+        unsafe {
+            syscalls::syscall!(
+                syscalls::Sysno::write, 1, buf.as_ptr() as *const _, buf.len())
+                .unwrap();
+        }
         Ok(())
     }
 }

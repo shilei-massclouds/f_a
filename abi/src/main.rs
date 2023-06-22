@@ -56,7 +56,7 @@ fn main() {
         let s: &str = "hello";
         let ptr = s as *const _;
         println!("fn sys_call_rcn(s: &str);");
-        println!("[caller]: {:?}", ptr);
+        println!("[caller]: {:?}; as_ptr(): {:?}", ptr, s.as_ptr());
         unsafe { sys_call_rcn(s) };
     }
 
@@ -64,7 +64,7 @@ fn main() {
         let s = String::from("hello");
         let ptr = &s as *const _;
         println!("fn sys_call_cn(s: String);");
-        println!("[caller]: {:?}; inner: {:?}", ptr, s.as_ptr());
+        println!("[caller]: {:?}; as_ptr(): {:?}", ptr, s.as_ptr());
         unsafe { sys_call_cn(s) };
     }
 
@@ -72,7 +72,7 @@ fn main() {
         let v = vec![1, 2, 3];
         let ptr = &v as *const _;
         println!("fn sys_call_vn(v: Vec);");
-        println!("[caller]: {:?}; inner: {:?}", ptr, v.as_ptr());
+        println!("[caller]: {:?}; as_ptr(): {:?}", ptr, v.as_ptr());
         unsafe { sys_call_vn(v) };
     }
 
@@ -80,7 +80,7 @@ fn main() {
         let v = vec![1, 2, 3];
         let ptr = &v as *const _;
         println!("fn sys_call_rvn(v: &Vec);");
-        println!("[caller]: {:?}; inner: {:?}", ptr, v.as_ptr());
+        println!("[caller]: {:?}; as_ptr(): {:?}", ptr, v.as_ptr());
         unsafe { sys_call_rvn(&v) };
     }
 }

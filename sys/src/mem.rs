@@ -1,10 +1,7 @@
 use core::alloc::{GlobalAlloc, Layout};
 use core::cell::UnsafeCell;
 use core::ptr::null_mut;
-use core::sync::atomic::{
-    AtomicUsize,
-    Ordering::{Acquire, SeqCst},
-};
+use core::sync::atomic::{AtomicUsize, Ordering::SeqCst};
 
 const ARENA_SIZE: usize = 128 * 1024;
 const MAX_SUPPORTED_ALIGN: usize = 4096;

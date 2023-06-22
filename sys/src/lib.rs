@@ -57,25 +57,25 @@ pub fn sys_call_rsn(layout: &Layout) {
 #[no_mangle]
 pub fn sys_call_rcn(s: &str) {
     let ptr = &(*s) as *const _;
-    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, s.as_ptr(), s);
+    println!("[callee]: {:?}; as_ptr(): {:?}; val: {:?}\n", ptr, s.as_ptr(), s);
 }
 
 #[no_mangle]
 pub fn sys_call_cn(s: String) {
     let ptr = &s as *const _;
-    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, s.as_ptr(), s);
+    println!("[callee]: {:?}; as_ptr(): {:?}; val: {:?}\n", ptr, s.as_ptr(), s);
 }
 
 #[no_mangle]
 pub fn sys_call_vn(v: Vec<usize>) {
     let ptr = &v as *const _;
-    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
+    println!("[callee]: {:?}; as_ptr(): {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
 }
 
 #[no_mangle]
 pub fn sys_call_rvn(v: &Vec<usize>) {
     let ptr = &(*v) as *const _;
-    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
+    println!("[callee]: {:?}; as_ptr(): {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
 }
 
 #[cfg(target_os = "none")]
