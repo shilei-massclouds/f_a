@@ -36,3 +36,27 @@ pub fn sys_call_rsn(layout: &Layout) {
     let ptr = &(*layout) as *const _;
     println!("[callee]: {:?}\n", ptr);
 }
+
+#[no_mangle]
+pub fn sys_call_rcn(s: &str) {
+    let ptr = &(*s) as *const _;
+    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, s.as_ptr(), s);
+}
+
+#[no_mangle]
+pub fn sys_call_cn(s: String) {
+    let ptr = &s as *const _;
+    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, s.as_ptr(), s);
+}
+
+#[no_mangle]
+pub fn sys_call_vn(v: Vec<usize>) {
+    let ptr = &v as *const _;
+    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
+}
+
+#[no_mangle]
+pub fn sys_call_rvn(v: &Vec<usize>) {
+    let ptr = &(*v) as *const _;
+    println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
+}
