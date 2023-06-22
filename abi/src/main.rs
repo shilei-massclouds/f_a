@@ -22,7 +22,7 @@ fn main() {
     {
         let val = 3;
         let ptr = &val as *const _;
-    
+
         println!("fn sys_call_bn(v: usize);");
         println!("[caller]: {:?}", ptr);
         unsafe { sys_call_bn(val) };

@@ -6,6 +6,23 @@
 // [r]: reference
 //
 
+#![cfg_attr(target_os = "none", no_std)]
+
+#[cfg(target_os = "none")]
+extern crate alloc;
+
+#[cfg(target_os = "none")]
+use alloc::{string::String, vec::Vec};
+
+#[cfg(target_os = "none")]
+mod macros;
+
+#[cfg(target_os = "none")]
+mod io;
+
+#[cfg(target_os = "none")]
+mod mem;
+
 use core::alloc::Layout;
 
 #[no_mangle]
@@ -59,4 +76,10 @@ pub fn sys_call_vn(v: Vec<usize>) {
 pub fn sys_call_rvn(v: &Vec<usize>) {
     let ptr = &(*v) as *const _;
     println!("[callee]: {:?}; inner: {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
+}
+
+#[cfg(target_os = "none")]
+#[panic_handler]
+fn panic(_info: &core::panic::PanicInfo) -> ! {
+    loop {}
 }
