@@ -1,6 +1,6 @@
 all: build
 
-build:
+build: clean
 	@make -C abi
 	@make -C func
 
