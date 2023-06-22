@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "func",
+    "abi",
+    "sys",
+]
