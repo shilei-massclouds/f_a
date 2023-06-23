@@ -24,6 +24,7 @@ mod mem;
 
 use core::alloc::Layout;
 use alloc::sync::Arc;
+use alloc::boxed::Box;
 
 #[derive(Debug)]
 pub enum EnumNumber {
@@ -182,7 +183,7 @@ impl VecItem {
 
 impl Drop for VecItem {
     fn drop(&mut self) {
-        println!("VecItem {} drop", self.0);
+        println!("VecItem {} drop success!", self.0);
     }
 }
 
@@ -201,6 +202,17 @@ pub fn sys_call_usize_with_vec_leak2<'a>() -> (*const VecItem, usize) {
     let ptr = &v as *const _;
     println!("[callee]: ret {:?}; vec.buf {:?}", ptr, (&v).as_ptr());
     ((&v).as_ptr(), (&v).len())
+}
+
+#[no_mangle]
+pub fn sys_call_usize_with_box_leak<'a>() -> &'a mut Vec<VecItem> {
+    let v: Vec<VecItem> = alloc::vec!(
+        VecItem::new(1), VecItem::new(2), VecItem::new(3)
+    );
+    let buf_ptr = (&v).as_ptr();
+    let ptr = Box::leak(Box::new(v));
+    println!("[callee]: ret {:?}; vec.buf {:?}", ptr as *mut _, buf_ptr);
+    ptr
 }
 
 //

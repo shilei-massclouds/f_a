@@ -18,6 +18,7 @@ extern "Rust" {
     fn sys_call_usize_with_arc_vec() -> Arc<Vec<usize>>;
     fn sys_call_usize_with_vec_leak<'a>() -> &'a mut [usize];
     fn sys_call_usize_with_vec_leak2<'a>() -> (*const VecItem, usize);
+    fn sys_call_usize_with_box_leak<'a>() -> &'a mut Vec<VecItem>;
 }
 
 #[derive(Clone, Debug)]
@@ -25,7 +26,7 @@ struct VecItem(usize);
 
 impl Drop for VecItem {
     fn drop(&mut self) {
-        println!("VecItem {} drop", self.0);
+        println!("VecItem {} drop success!", self.0);
     }
 }
 
@@ -180,6 +181,15 @@ fn main() {
         test(1);
         test(2);
         println!();
+    }
+
+    {
+        println!("fn sys_call_usize_with_box_leak<'a>() -> &'a mut Vec<usize>;");
+        let v = unsafe { sys_call_usize_with_box_leak() };
+        let ptr = v as *mut _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+        unsafe { core::ptr::drop_in_place(v.as_mut_slice()) }
+        println!("[caller]: drop ok!\n");
     }
 
     //

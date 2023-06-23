@@ -137,6 +137,15 @@ fn main() {
         println!();
     }
 
+    {
+        println!("fn sys_call_usize_with_box_leak<'a>() -> &'a mut Vec<usize>;");
+        let v = sys::sys_call_usize_with_box_leak();
+        let ptr = v as *mut _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+        unsafe { core::ptr::drop_in_place(v.as_mut_slice()) }
+        println!("[caller]: drop ok!\n");
+    }
+
     //
     // These counter examples wil cause segment fault or memory leak!
     // Note: Some of these are okay for functional call.
