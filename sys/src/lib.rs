@@ -189,19 +189,15 @@ impl Drop for VecItem {
 
 // Add this test to make sure that vec's LEAKING buffer will
 // safely dropped on the other size.
-// But until now, I don't find any way to drop!
 #[no_mangle]
-pub fn sys_call_usize_with_vec_leak2<'a>() -> (*const VecItem, usize) {
+pub fn sys_call_usize_with_vec_leak2<'a>() -> &'a mut [VecItem] {
     let v: Vec<VecItem> = alloc::vec!(
         VecItem::new(1), VecItem::new(2), VecItem::new(3)
     );
-    println!("[callee]: before leak: vec.buf {:?}", v.as_ptr());
+    println!("[callee]: before leak: vec.buf {:?}", v.as_slice().as_ptr());
     let v = v.leak();
     println!("[callee]: after  leak: vec.buf {:?}", v.as_ptr());
-
-    let ptr = &v as *const _;
-    println!("[callee]: ret {:?}; vec.buf {:?}", ptr, (&v).as_ptr());
-    ((&v).as_ptr(), (&v).len())
+    v
 }
 
 #[no_mangle]

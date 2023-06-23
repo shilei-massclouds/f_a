@@ -17,7 +17,7 @@ extern "Rust" {
     fn sys_call_usize_with_vec() -> Vec<usize>;
     fn sys_call_usize_with_arc_vec() -> Arc<Vec<usize>>;
     fn sys_call_usize_with_vec_leak<'a>() -> &'a mut [usize];
-    fn sys_call_usize_with_vec_leak2<'a>() -> (*const VecItem, usize);
+    fn sys_call_usize_with_vec_leak2<'a>() -> &'a mut [VecItem];
     fn sys_call_usize_with_box_leak<'a>() -> &'a mut Vec<VecItem>;
 }
 
@@ -192,6 +192,24 @@ fn main() {
         println!("[caller]: drop ok!\n");
     }
 
+    {
+        println!("fn sys_call_usize_with_vec_leak() -> &'a mut [usize];");
+        let v = unsafe { sys_call_usize_with_vec_leak() };
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+        unsafe { core::ptr::drop_in_place(v) }
+        println!("[caller]: drop ok!\n");
+    }
+
+    {
+        println!("fn sys_call_usize_with_vec_leak2() -> &'a mut [VecItem];");
+        let v = unsafe { sys_call_usize_with_vec_leak2() };
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+        unsafe { core::ptr::drop_in_place(v) }
+        println!("[caller]: drop ok!\n");
+    }
+
     //
     // These counter examples wil cause segment fault or memory leak!
     //
@@ -204,7 +222,6 @@ fn main() {
 
 #[allow(dead_code)]
 fn counter_examples() {
-
     // Counter example: return Vec directly.
     // Okay for func; but segment fault for abi.
     {
@@ -221,32 +238,5 @@ fn counter_examples() {
         let av = unsafe { sys_call_usize_with_arc_vec() };
         let ptr = &av as *const _;
         println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, av.as_ptr());
-    }
-
-    // Counter example: don't know how to drop leaking memory
-    // from the other side.
-    {
-        println!("fn sys_call_usize_with_vec_leak() -> &'a mut [usize];");
-        let v = unsafe { sys_call_usize_with_vec_leak() };
-        let ptr = &v as *const _;
-        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
-        // NOTE: I don't know how to drop vec's LEAKING buffer
-        // from the other side.
-    }
-
-    // Counter example: don't know how to drop leaking memory
-    // from the other side.
-    {
-        println!("fn sys_call_usize_with_vec_leak2() -> &'a mut [VecItem];");
-        let (ptr, len) = unsafe { sys_call_usize_with_vec_leak2() };
-        let v = unsafe { core::slice::from_raw_parts(ptr, len) };
-        let ptr = &v as *const _;
-        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
-        // NOTE: I don't know how to drop vec's LEAKING buffer
-        // from the other side.
-        // Never see VecItem.drop is called automatically.
-        // 1) drop(v) doesn't work! And drop(iter) in loop doesn't work!
-        // 2) Vec::from(v) and clear() doesn't work! It seems okay! But
-        // in fact, it just copys the memory and frees the copy.
     }
 }

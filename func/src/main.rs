@@ -146,6 +146,24 @@ fn main() {
         println!("[caller]: drop ok!\n");
     }
 
+    {
+        println!("fn sys_call_usize_with_vec_leak() -> &'a mut [usize];");
+        let v = sys::sys_call_usize_with_vec_leak();
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+        unsafe { core::ptr::drop_in_place(v) }
+        println!("[caller]: drop ok!\n");
+    }
+
+    {
+        println!("fn sys_call_usize_with_vec_leak2() -> &'a mut [VecItem];");
+        let v = sys::sys_call_usize_with_vec_leak2();
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+        unsafe { core::ptr::drop_in_place(v) }
+        println!("[caller]: drop ok!\n");
+    }
+
     //
     // These counter examples wil cause segment fault or memory leak!
     // Note: Some of these are okay for functional call.
@@ -159,7 +177,6 @@ fn main() {
 
 #[allow(dead_code)]
 fn counter_examples() {
-
     // Counter example: return Vec directly.
     // Okay for func; but segment fault for abi.
     {
@@ -174,26 +191,5 @@ fn counter_examples() {
         let av = sys::sys_call_usize_with_arc_vec();
         let ptr = &av as *const _;
         println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, av.as_ptr());
-    }
-
-    // Same bugs with abi.
-    // Counter example: don't know how to drop leaking memory
-    // from the other side.
-    {
-        println!("fn sys_call_usize_with_vec_leak() -> &'a mut [usize];");
-        let v = sys::sys_call_usize_with_vec_leak();
-        let ptr = &v as *const _;
-        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
-    }
-
-    // Same bugs with abi.
-    // Counter example: don't know how to drop leaking memory
-    // from the other side.
-    {
-        println!("fn sys_call_usize_with_vec_leak2() -> &'a mut [VecItem];");
-        let (ptr, len) = sys::sys_call_usize_with_vec_leak2();
-        let v = unsafe { core::slice::from_raw_parts(ptr, len) };
-        let ptr = &v as *const _;
-        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
     }
 }
