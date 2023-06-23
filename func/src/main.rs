@@ -115,4 +115,28 @@ fn main() {
             ptr, s_ptr, three);
         sys::sys_call_ref_enum(&three);
     }
+
+    {
+        println!("fn sys_call_usize_with_result(n: usize) -> AxResult;");
+        fn test(n: usize) {
+            let ret = sys::sys_call_usize_with_result(n);
+            let ptr = &ret as *const _;
+            match ret {
+                Ok(_v) => {
+                    println!("[caller]: input {}; got {:?} [Ok]", n, ptr);
+                },
+                Err(e) => {
+                    println!("[caller]: input {}; got {:?} [Err: {:?}]",
+                        n, ptr, e);
+                }
+            }
+        }
+        test(0);
+        test(1);
+        test(2);
+    }
+
+    println!("\n##############");
+    println!("FunctionCall: all tests ok!");
+    println!("##############\n");
 }

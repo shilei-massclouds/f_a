@@ -119,6 +119,28 @@ pub fn sys_call_ref_enum(n: &EnumNumber) {
     }
 }
 
+#[repr(i32)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum AxError {
+    Error1,
+    Error2,
+}
+
+pub type AxResult<T = ()> = Result<T, AxError>;
+
+#[no_mangle]
+pub fn sys_call_usize_with_result(n: usize) -> AxResult {
+    let ret = match n {
+        0 => Ok(()),
+        1 => Err(AxError::Error1),
+        _ => Err(AxError::Error2),
+    };
+
+    let ptr = &ret as *const _;
+    println!("[callee]: input {}; ret {:?}", n, ptr);
+    ret
+}
+
 //
 // Panic
 //

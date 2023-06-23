@@ -12,7 +12,17 @@ extern "Rust" {
     fn sys_call_rvn(v: &Vec<usize>);
     fn sys_call_enum(n: EnumNumber);
     fn sys_call_ref_enum(n: &EnumNumber);
+    fn sys_call_usize_with_result(n: usize) -> AxResult;
 }
+
+#[repr(i32)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum AxError {
+    Error1,
+    Error2,
+}
+
+pub type AxResult<T = ()> = Result<T, AxError>;
 
 #[derive(Debug)]
 enum EnumNumber {
@@ -136,4 +146,28 @@ fn main() {
             ptr, s_ptr, three);
         unsafe { sys_call_ref_enum(&three) };
     }
+
+    {
+        println!("fn sys_call_usize_with_result(n: usize) -> AxResult;");
+        fn test(n: usize) {
+            let ret = unsafe { sys_call_usize_with_result(n) };
+            let ptr = &ret as *const _;
+            match ret {
+                Ok(_v) => {
+                    println!("[caller]: input {}; got {:?} [Ok]", n, ptr);
+                },
+                Err(e) => {
+                    println!("[caller]: input {}; got {:?} [Err: {:?}]",
+                        n, ptr, e);
+                }
+            }
+        }
+        test(0);
+        test(1);
+        test(2);
+    }
+
+    println!("\n##############");
+    println!("Rust-ABI: all tests ok!");
+    println!("##############\n");
 }
