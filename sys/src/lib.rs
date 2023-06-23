@@ -25,6 +25,13 @@ mod mem;
 
 use core::alloc::Layout;
 
+#[derive(Debug)]
+pub enum EnumNumber {
+    One,
+    Two(usize),
+    Three(String),
+}
+
 #[no_mangle]
 pub fn sys_call_nn() {
     println!("fn sys_call_nn();\n");
@@ -78,6 +85,43 @@ pub fn sys_call_rvn(v: &Vec<usize>) {
     println!("[callee]: {:?}; as_ptr(): {:?}; val: {:?}\n", ptr, v.as_ptr(), v);
 }
 
+#[no_mangle]
+pub fn sys_call_enum(n: EnumNumber) {
+    let ptr = &n as *const _;
+    match n {
+        EnumNumber::One => {
+            println!("[callee]: {:?}; val: {:?}\n", ptr, n);
+        },
+        EnumNumber::Two(_v) => {
+            println!("[callee]: {:?}; val: {:?}\n", ptr, n);
+        },
+        EnumNumber::Three(ref s) => {
+            println!("[callee]: {:?}; as_ptr(): {:?}; val: {:?}\n",
+                ptr, s.as_ptr(), n);
+        },
+    }
+}
+
+#[no_mangle]
+pub fn sys_call_ref_enum(n: &EnumNumber) {
+    let ptr = &(*n) as *const _;
+    match n {
+        EnumNumber::One => {
+            println!("[callee]: {:?}; val: {:?}\n", ptr, n);
+        },
+        EnumNumber::Two(_v) => {
+            println!("[callee]: {:?}; val: {:?}\n", ptr, n);
+        },
+        EnumNumber::Three(s) => {
+            println!("[callee]: {:?}; as_ptr(): {:?}; val: {:?}\n",
+                ptr, s.as_ptr(), n);
+        },
+    }
+}
+
+//
+// Panic
+//
 #[cfg(target_os = "none")]
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {

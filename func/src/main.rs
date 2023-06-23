@@ -1,4 +1,5 @@
 use core::alloc::Layout;
+use sys::EnumNumber;
 
 fn main() {
     println!("\n##############");
@@ -69,5 +70,49 @@ fn main() {
         println!("fn sys_call_rvn(v: &Vec);");
         println!("[caller]: {:?}; as_ptr(): {:?}", ptr, v.as_ptr());
         sys::sys_call_rvn(&v);
+    }
+
+    {
+        println!("fn sys_call_enum(n: EnumNumber);");
+
+        let one = EnumNumber::One;
+        let ptr = &one as *const _;
+        println!("[caller]: {:?}; val: {:?}", ptr, one);
+        sys::sys_call_enum(one);
+
+        let two = EnumNumber::Two(100);
+        let ptr = &two as *const _;
+        println!("[caller]: {:?}; val: {:?}", ptr, two);
+        sys::sys_call_enum(two);
+
+        let s = String::from("Hello");
+        let s_ptr = s.as_ptr();
+        let three = EnumNumber::Three(s);
+        let ptr = &three as *const _;
+        println!("[caller]: {:?}; as_ptr(): {:?}; val: {:?}",
+            ptr, s_ptr, three);
+        sys::sys_call_enum(three);
+    }
+
+    {
+        println!("fn sys_call_ref_enum(n: &EnumNumber);");
+
+        let one = EnumNumber::One;
+        let ptr = &one as *const _;
+        println!("[caller]: {:?}; val: {:?}", ptr, one);
+        sys::sys_call_ref_enum(&one);
+
+        let two = EnumNumber::Two(100);
+        let ptr = &two as *const _;
+        println!("[caller]: {:?}; val: {:?}", ptr, two);
+        sys::sys_call_ref_enum(&two);
+
+        let s = String::from("Hello");
+        let s_ptr = s.as_ptr();
+        let three = EnumNumber::Three(s);
+        let ptr = &three as *const _;
+        println!("[caller]: {:?}; as_ptr(): {:?}; val: {:?}",
+            ptr, s_ptr, three);
+        sys::sys_call_ref_enum(&three);
     }
 }
