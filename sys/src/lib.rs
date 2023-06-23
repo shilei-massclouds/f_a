@@ -154,11 +154,53 @@ pub fn sys_call_usize_with_vec() -> Vec<usize> {
 
 #[no_mangle]
 pub fn sys_call_usize_with_arc_vec() -> Arc<Vec<usize>> {
-    let bv = Arc::new(alloc::vec!(1, 2, 3));
+    let av = Arc::new(alloc::vec!(1, 2, 3));
 
-    let ptr = &bv as *const _;
-    println!("[callee]: ret {:?}; vec.buf {:?}", ptr, bv.as_ptr());
-    bv.clone()
+    let ptr = &av as *const _;
+    println!("[callee]: ret {:?}; vec.buf {:?}", ptr, av.as_ptr());
+    av.clone()
+}
+
+#[no_mangle]
+pub fn sys_call_usize_with_vec_leak<'a>() -> &'a mut [usize] {
+    let v: Vec<usize> = alloc::vec!(1, 2, 3);
+    let v = v.leak();
+
+    let ptr = &v as *const _;
+    println!("[callee]: ret {:?}; vec.buf {:?}", ptr, (&v).as_ptr());
+    v
+}
+
+#[derive(Clone, Debug)]
+pub struct VecItem(usize);
+
+impl VecItem {
+    fn new(n: usize) -> Self {
+        Self { 0: n }
+    }
+}
+
+impl Drop for VecItem {
+    fn drop(&mut self) {
+        println!("VecItem {} drop", self.0);
+    }
+}
+
+// Add this test to make sure that vec's LEAKING buffer will
+// safely dropped on the other size.
+// But until now, I don't find any way to drop!
+#[no_mangle]
+pub fn sys_call_usize_with_vec_leak2<'a>() -> (*const VecItem, usize) {
+    let v: Vec<VecItem> = alloc::vec!(
+        VecItem::new(1), VecItem::new(2), VecItem::new(3)
+    );
+    println!("[callee]: before leak: vec.buf {:?}", v.as_ptr());
+    let v = v.leak();
+    println!("[callee]: after  leak: vec.buf {:?}", v.as_ptr());
+
+    let ptr = &v as *const _;
+    println!("[callee]: ret {:?}; vec.buf {:?}", ptr, (&v).as_ptr());
+    ((&v).as_ptr(), (&v).len())
 }
 
 //

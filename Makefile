@@ -1,3 +1,5 @@
+export RUSTC_BOOTSTRAP=1
+
 all: build
 
 build: clean

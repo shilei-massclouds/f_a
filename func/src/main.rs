@@ -137,7 +137,11 @@ fn main() {
         println!();
     }
 
-    counter_examples();
+    //
+    // These counter examples wil cause segment fault or memory leak!
+    // Note: Some of these are okay for functional call.
+    //
+    //counter_examples();
 
     println!("\n##############");
     println!("FunctionCall: all tests ok!");
@@ -158,8 +162,29 @@ fn counter_examples() {
 
     {
         println!("fn sys_call_usize_with_vec() -> Arc<Vec<usize>>;");
-        let bv = sys::sys_call_usize_with_arc_vec();
-        let ptr = &bv as *const _;
-        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, bv.as_ptr());
+        let av = sys::sys_call_usize_with_arc_vec();
+        let ptr = &av as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, av.as_ptr());
+    }
+
+    // Same bugs with abi.
+    // Counter example: don't know how to drop leaking memory
+    // from the other side.
+    {
+        println!("fn sys_call_usize_with_vec_leak() -> &'a mut [usize];");
+        let v = sys::sys_call_usize_with_vec_leak();
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+    }
+
+    // Same bugs with abi.
+    // Counter example: don't know how to drop leaking memory
+    // from the other side.
+    {
+        println!("fn sys_call_usize_with_vec_leak2() -> &'a mut [VecItem];");
+        let (ptr, len) = sys::sys_call_usize_with_vec_leak2();
+        let v = unsafe { core::slice::from_raw_parts(ptr, len) };
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
     }
 }
