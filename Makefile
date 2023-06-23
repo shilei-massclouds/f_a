@@ -1,17 +1,17 @@
 all: build
 
 build: clean
-	@make -C abi
 	@make -C func
+	@make -C abi
 
 run: build
-	@make -C abi run
 	@make -C func run
+	@make -C abi run
 
 clean:
-	@make -C abi clean
 	@make -C func clean
+	@make -C abi clean
 
 dump: build
-	@make -C abi dump
 	@make -C func dump
+	@make -C abi dump

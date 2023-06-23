@@ -134,9 +134,32 @@ fn main() {
         test(0);
         test(1);
         test(2);
+        println!();
     }
+
+    counter_examples();
 
     println!("\n##############");
     println!("FunctionCall: all tests ok!");
     println!("##############\n");
+}
+
+#[allow(dead_code)]
+fn counter_examples() {
+
+    // Counter example: return Vec directly.
+    // Okay for func; but segment fault for abi.
+    {
+        println!("fn sys_call_usize_with_vec() -> Vec<usize>;");
+        let v = sys::sys_call_usize_with_vec();
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+    }
+
+    {
+        println!("fn sys_call_usize_with_vec() -> Arc<Vec<usize>>;");
+        let bv = sys::sys_call_usize_with_arc_vec();
+        let ptr = &bv as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, bv.as_ptr());
+    }
 }

@@ -8,7 +8,6 @@
 
 #![cfg_attr(target_os = "none", no_std)]
 
-#[cfg(target_os = "none")]
 extern crate alloc;
 
 #[cfg(target_os = "none")]
@@ -24,6 +23,7 @@ mod io;
 mod mem;
 
 use core::alloc::Layout;
+use alloc::sync::Arc;
 
 #[derive(Debug)]
 pub enum EnumNumber {
@@ -139,6 +139,26 @@ pub fn sys_call_usize_with_result(n: usize) -> AxResult {
     let ptr = &ret as *const _;
     println!("[callee]: input {}; ret {:?}", n, ptr);
     ret
+}
+
+// Counter example: return Vec directly.
+// Okay for func; but segment fault for abi.
+#[no_mangle]
+pub fn sys_call_usize_with_vec() -> Vec<usize> {
+    let v = alloc::vec!(1, 2, 3);
+
+    let ptr = &v as *const _;
+    println!("[callee]: ret {:?}; vec.buf {:?}", ptr, v.as_ptr());
+    v
+}
+
+#[no_mangle]
+pub fn sys_call_usize_with_arc_vec() -> Arc<Vec<usize>> {
+    let bv = Arc::new(alloc::vec!(1, 2, 3));
+
+    let ptr = &bv as *const _;
+    println!("[callee]: ret {:?}; vec.buf {:?}", ptr, bv.as_ptr());
+    bv.clone()
 }
 
 //

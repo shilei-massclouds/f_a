@@ -1,4 +1,5 @@
 use core::alloc::Layout;
+use std::sync::Arc;
 
 extern "Rust" {
     fn sys_call_nn();
@@ -13,6 +14,8 @@ extern "Rust" {
     fn sys_call_enum(n: EnumNumber);
     fn sys_call_ref_enum(n: &EnumNumber);
     fn sys_call_usize_with_result(n: usize) -> AxResult;
+    fn sys_call_usize_with_vec() -> Vec<usize>;
+    fn sys_call_usize_with_arc_vec() -> Arc<Vec<usize>>;
 }
 
 #[repr(i32)]
@@ -165,9 +168,32 @@ fn main() {
         test(0);
         test(1);
         test(2);
+        println!();
     }
+
+    counter_examples();
 
     println!("\n##############");
     println!("Rust-ABI: all tests ok!");
     println!("##############\n");
+}
+
+#[allow(dead_code)]
+fn counter_examples() {
+
+    // Counter example: return Vec directly.
+    // Okay for func; but segment fault for abi.
+    {
+        println!("fn sys_call_usize_with_vec() -> Vec<usize>;");
+        let v = unsafe { sys_call_usize_with_vec() };
+        let ptr = &v as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
+    }
+
+    {
+        println!("fn sys_call_usize_with_vec() -> Arc<Vec<usize>>;");
+        let bv = unsafe { sys_call_usize_with_arc_vec() };
+        let ptr = &bv as *const _;
+        println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, bv.as_ptr());
+    }
 }
