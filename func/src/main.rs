@@ -164,6 +164,28 @@ fn main() {
         println!("[caller]: drop ok!\n");
     }
 
+    {
+        println!("fn sys_call_with_struct() -> Layout;");
+        let layout = sys::sys_call_with_struct();
+        let ptr = &layout as *const _;
+        println!("[caller]: val: {:?}; ptr {:?}", layout, ptr);
+    }
+
+    {
+        println!();
+        println!("fn sys_call_with_opt_struct() -> Option<Layout>;");
+        let layout = sys::sys_call_with_opt_struct(1);
+        assert!(!layout.is_none());
+        if let Some(v) = layout {
+            let ptr = &v as *const _;
+            println!("[caller]: val: {:?}; ptr {:?}", v, ptr);
+        }
+
+        let layout = sys::sys_call_with_opt_struct(0);
+        assert!(layout.is_none());
+    }
+
+
     //
     // These counter examples wil cause segment fault or memory leak!
     // Note: Some of these are okay for functional call.

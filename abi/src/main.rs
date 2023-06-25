@@ -19,6 +19,8 @@ extern "Rust" {
     fn sys_call_usize_with_vec_leak<'a>() -> &'a mut [usize];
     fn sys_call_usize_with_vec_leak2<'a>() -> &'a mut [VecItem];
     fn sys_call_usize_with_box_leak<'a>() -> &'a mut Vec<VecItem>;
+    fn sys_call_with_struct() -> Layout;
+    fn sys_call_with_opt_struct(input: usize) -> Option<Layout>;
 }
 
 #[derive(Clone, Debug)]
@@ -208,6 +210,27 @@ fn main() {
         println!("[caller]: ret {:?}; vec.buf {:?}\n", ptr, v.as_ptr());
         unsafe { core::ptr::drop_in_place(v) }
         println!("[caller]: drop ok!\n");
+    }
+
+    {
+        println!("fn sys_call_with_struct() -> Layout;");
+        let layout = unsafe { sys_call_with_struct() };
+        let ptr = &layout as *const _;
+        println!("[caller]: val: {:?}; ptr {:?}", layout, ptr);
+    }
+
+    {
+        println!();
+        println!("fn sys_call_with_opt_struct(input: usize) -> Option<Layout>;");
+        let layout = unsafe { sys_call_with_opt_struct(1) };
+        assert!(!layout.is_none());
+        if let Some(v) = layout {
+            let ptr = &v as *const _;
+            println!("[caller]: val: {:?}; ptr {:?}", v, ptr);
+        }
+
+        let layout = unsafe { sys_call_with_opt_struct(0) };
+        assert!(layout.is_none());
     }
 
     //

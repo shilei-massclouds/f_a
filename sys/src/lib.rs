@@ -211,6 +211,25 @@ pub fn sys_call_usize_with_box_leak<'a>() -> &'a mut Vec<VecItem> {
     ptr
 }
 
+#[no_mangle]
+pub fn sys_call_with_struct() -> Layout {
+    let layout = Layout::from_size_align(64, 64).unwrap();
+    let ptr = &layout as *const _;
+    println!("[callee]: val: {:?}; ptr {:?}", &layout, ptr);
+    layout
+}
+
+#[no_mangle]
+pub fn sys_call_with_opt_struct(cond: usize) -> Option<Layout> {
+    if cond == 0 {
+        return None;
+    }
+    let layout = Layout::from_size_align(64, 64).unwrap();
+    let ptr = &layout as *const _;
+    println!("[callee]: val: {:?}; ptr {:?}", &layout, ptr);
+    Some(layout)
+}
+
 //
 // Panic
 //
